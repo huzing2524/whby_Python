@@ -101,12 +101,9 @@ create table wh_schedules
   time integer
 );
 
-insert into wh_schedules(id, name, time)
-values ('A', 'A班', 1561715421);
-insert into wh_schedules(id, name, time)
-values ('B', 'B班', 1561715421);
-insert into wh_schedules(id, name, time)
-values ('C', 'C班', 1561715421);
+insert into wh_schedules(uuid, name, time) values ('A', 'A班', 1561715421);
+insert into wh_schedules(uuid, name, time) values ('B', 'B班', 1561715421);
+insert into wh_schedules(uuid, name, time) values ('C', 'C班', 1561715421);
 
 -- 车间表
 create table wh_workshop
