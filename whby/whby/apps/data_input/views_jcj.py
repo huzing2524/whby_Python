@@ -1,4 +1,5 @@
 import logging
+import datetime
 
 from django.db import connections
 from psycopg2.extras import RealDictCursor
@@ -346,12 +347,22 @@ class BoardShutdownStats(APIView):
         end = request.query_params.get('end')  # 2019-03-06
         schedule = request.query_params.get('schedule')
 
-        if start.count('-') == 2:
-            date_type = " date >= '{}' and date <= '{}' ".format(start, end)
-        elif start.count('-') == 1:
-            date_type = " date >= to_date('YYYY-MM', '{}') and date <= to_date('YYYY-MM', '{}') ".format(start, end)
-        else:
-            date_type = " date >= to_date('YYYY', '{}') and date <= to_date('YYYY', '{}') ".format(start, end)
+        # if start.count('-') == 2:
+        #     date_type = " date >= '{}' and date <= '{}' ".format(start, end)
+        # elif start.count('-') == 1:
+        #     date_type = " date >= to_date('YYYY-MM', '{}') and date <= to_date('YYYY-MM', '{}') ".format(start, end)
+        # else:
+        #     date_type = " date >= to_date('YYYY', '{}') and date <= to_date('YYYY', '{}') ".format(start, end)
+
+        """start, end 筛选格式为 年份-月份 2020-02
+        业务逻辑BUG: end 月份要+1, 之前是 start = 2020-02, end = 2020-02, 查询数据为空
+        """
+        fix_end = datetime.datetime.strftime(datetime.datetime.strptime(end, '%Y-%m') + datetime.timedelta(days=31),
+                                             '%Y-%m')
+        """
+        语法BUG: 上面SQL函数to_date('YYYY-MM', '2020-02')格式错误, 正确写法为to_date('2020-02', 'YYYY-MM')
+        """
+        date_type = " date >= to_date('{}', 'YYYY-MM') and date <= to_date('{}', 'YYYY-MM') ".format(start, fix_end)
 
         sql = """
             select 
