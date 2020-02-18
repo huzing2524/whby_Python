@@ -217,6 +217,7 @@ create table if not exists wh_product_quality
 );
 
 -- update 2019.7.10 hzy 同一日期下可以有多个班次
+-- wh_sanding_sawing 和 wh_sanding_sawing_data 直接使用uuid关联即可，目前使用 date 和 schedule 共同关联不好。
 alter table wh_sanding_sawing drop constraint wh_sanding_sawing_pkey;
 alter table wh_sanding_sawing add column uuid varchar(36) primary key default uuid_generate_v4();
 alter table wh_sanding_sawing_data add column schedule varchar(36);
