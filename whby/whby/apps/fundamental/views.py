@@ -136,8 +136,8 @@ class ScheduleMain(APIView):
         time_ = int(time.time())
 
         sql_0 = "select count(1) from wh_schedules where name = '{}';".format(name)
-        sql_1 = "select count(1) from wh_schedules where id = '{}';".format(id_)
-        sql_2 = "insert into wh_schedules(id, name, time) values('{}', '{}', {});".format(id_, name, time_)
+        sql_1 = "select count(1) from wh_schedules where uuid = '{}';".format(id_)
+        sql_2 = "insert into wh_schedules(uuid, name, time) values('{}', '{}', {});".format(id_, name, time_)
 
         try:
             cur.execute(sql_0)
