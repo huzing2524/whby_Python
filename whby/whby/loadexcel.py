@@ -17,15 +17,15 @@ def read_batch(name):
     table = data.sheets()[0]
     title = table.row_values(0)
 
-    day = title.index('日')
-    schedule = title.index('班')
-    index1 = title.index('合计产量（M3)')
-    index2 = title.index('废品（M3）')
-    index3 = title.index('总刨花(T)')
-    index4 = title.index('MDI胶水(公斤)')
-    index5 = title.index('表芯层石蜡(公斤)')
-    index6 = title.index('表芯层增粘剂（公斤）')
-    index7 = title.index('脱模剂（公斤）')
+    day = title.index('时间')
+    schedule = title.index('班次')
+    index1 = title.index('成品产量(m3)')
+    index2 = title.index('废品产量(m3)')
+    index3 = title.index('总刨花(T/m3)')
+    index4 = title.index('MDI胶水(Kg/m3)')
+    index5 = title.index('表芯层石蜡(Kg/m3)')
+    index6 = title.index('表芯层增粘剂(Kg/m3)')
+    index7 = title.index('脱模剂(Kg/m3)')
 
     all = {}
     schedule_dic = {}

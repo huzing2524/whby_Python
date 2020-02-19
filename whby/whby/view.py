@@ -130,9 +130,9 @@ class ProductBatch(APIView):
         if not month or not schedule:
             return Response({"res": 1, "errmsg": "输入数据有误"}, status=status.HTTP_400_BAD_REQUEST)
         header = [
-            ['时间', '班次', '成品产量(m3)', '废品产量(m3)', '刨花(T/m3)', 'MDI(KG/M3)', '石腊(KG/M3)',
-             '增粘剂(KG/M3)', '脱模剂(KG/M3)']]
-        conn = get_redis_connection()
+            ['时间', '班次', '成品产量(m3)', '废品产量(m3)', '总刨花(T/m3)', 'MDI胶水(Kg/m3)', '表芯层石蜡(Kg/m3)',
+             '表芯层增粘剂(Kg/m3)', '脱模剂(Kg/m3)']]
+        conn = get_redis_connection('default')
         cache_data = conn.hget(month, 'BATCH-' + schedule)
         if not cache_data:
             sql = "select all_data, schedule from wh_product_batch where month = '{}'".format(month)
@@ -159,12 +159,19 @@ class ProductBatch(APIView):
         else:
             result = json.loads(cache_data)
         res = []
-        for i in range(1, 32):
-            row = result.get(str(i))
-            if row:
-                row.insert(0, str(i))
-                row.insert(1, str(schedule))
-                res.append(row)
+
+        for i in result:
+            temp = result[i]
+            temp.insert(0, i)
+            temp.insert(1, schedule)
+            res.append(result[i])
+        # for i in range(1, 32):
+        #     row = result.get(str(i))  # result类型是字典，取值错误
+        #
+        #     if row:
+        #         row.insert(0, str(i))
+        #         row.insert(1, str(schedule))
+        #         res.append(row)
         header.extend(res)
         return Response({"data": header}, status=status.HTTP_200_OK)
 
