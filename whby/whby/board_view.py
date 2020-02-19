@@ -28,8 +28,13 @@ class DailyReport(APIView):
             res['plan'] = cache_plan
             res['average'] = round(int(cache_plan) / int(cache_days), 2)
         else:
+            # BUG: date=201902, str(int('201902'[-2:]))=2, int()会把浮点数转换成整形, 丢掉前面的0. 导致sql查询的时候date日期匹配错误
+            # sql = "select output, production_days from wh_annual_plan where date = '{}'".format(
+            #     date[0:4] + '-' + str(int(date[-2:])))
+
             sql = "select output, production_days from wh_annual_plan where date = '{}'".format(
-                date[0:4] + '-' + str(int(date[-2:])))
+                date[0:4] + '-' + date[-2:].zfill(2))  # 补0
+
             cursor = connection.cursor()
             try:
                 cursor.execute(sql)
@@ -48,15 +53,22 @@ class DailyReport(APIView):
             data = json.loads(cache_data)
             data_res = []
             total, n = 0, 0
-            for i in range(1, 32):
-                row = data.get(str(i))
-                if row:
-                    n += 1
-                    total += row[1]
-                    row.insert(0, str(i))
-                    data_res.append(row)
-                    res['product'] = total
-                    res['data'] = data_res
+
+            for key in data:
+                total += sum(data[key])
+                data_res.append(key)
+                res['product'] = total
+                res['data'] = data_res
+
+            # for i in range(1, 32):
+            #     row = data.get(str(i))  # BUG: data字典遍历错误, get(键)不是取索引
+            #     if row:
+            #         n += 1
+            #         total += row[1]
+            #         row.insert(0, str(i))
+            #         data_res.append(row)
+            #         res['product'] = total
+            #         res['data'] = data_res
 
         return Response(res, status=status.HTTP_200_OK)
 
@@ -71,11 +83,17 @@ class OutPut(APIView):
             data = json.loads(cache_data)
             data_res = []
             date_list, n = [], 0
-            for i in range(1, 32):
-                row = data.get(str(i))
-                if row:
-                    date_list.append(str(i))
-                    data_res.append(row[1])
+
+            for key in data:
+                row = data.get(key)
+                date_list.append(key)
+                data_res.extend(row)
+
+            # for i in range(1, 32):
+            #     row = data.get(str(i))  # BUG: data字典遍历错误, get(键)不是取索引
+            #     if row:
+            #         date_list.append(str(i))
+            #         data_res.append(row[1])
             res = {
                 'date': date_list,
                 'data': data_res
